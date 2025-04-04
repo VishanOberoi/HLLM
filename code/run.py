@@ -91,19 +91,31 @@ def run_loop(local_rank, config_file=None, saved=True, extra_args=[]):
     world_size = torch.distributed.get_world_size()
     trainer = Trainer(config, model)
 
+    ckpt_path = os.path.join(config['checkpoint_dir'], 'pytorch_model.bin')
+    if os.path.exists(ckpt_path):
+        logger.info(f"Found checkpoint at {ckpt_path}, attempting to load...")
+        ckpt = torch.load(ckpt_path, map_location='cpu')
+        msg = trainer.model.load_state_dict(ckpt, strict=False)
+        logger.info(f'Checkpoint loaded from {ckpt_path}')
+        logger.info(f'{msg.unexpected_keys = }')
+        logger.info(f'{msg.missing_keys = }')
+    else:
+        logger.info("No checkpoint found. Starting training from scratch.")
+
+
     logger.info(set_color('\nWorld_Size', 'pink') + f' = {world_size} \n')
     logger.info(config)
     logger.info(dataload)
     logger.info(model)
+    
 
     if config['val_only']:
-        ckpt_path = os.path.join(config['checkpoint_dir'], 'pytorch_model.bin')
-        ckpt = torch.load(ckpt_path, map_location='cpu')
-        logger.info(f'Eval only model load from {ckpt_path}')
-        msg = trainer.model.load_state_dict(ckpt, False)
-        logger.info(f'{msg.unexpected_keys = }')
-        logger.info(f'{msg.missing_keys = }')
-        test_result = trainer.evaluate(test_loader, load_best_model=False, show_progress=config['show_progress'], init_model=True)
+        test_result = trainer.evaluate(
+            test_loader,
+            load_best_model=False,
+            show_progress=config['show_progress'],
+            init_model=True
+        )
         logger.info(set_color('test result', 'yellow') + f': {test_result}')
     else:
         # training process

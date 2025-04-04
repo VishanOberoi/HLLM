@@ -415,6 +415,25 @@ class Trainer(object):
             scores[history_index] = -np.inf
         return scores, positive_u, positive_i
 
+    def _load_checkpoint(self, path): 
+        
+        self.logger.info(f"Loading checkpoint from {path}")
+        state = {
+            "model": self.model,
+            "optimizer": self.optimizer,
+            'scheduler': self.lr_scheduler
+        }
+
+        remainder = self.lite.load(path, state)
+        self.best_valid_score = remainder.pop('best_valid_score')
+        self.cur_step = remainder.pop('cur_step')
+        torch.set_rng_state(remainder.pop('rng_state'))
+        torch.cuda.set_rng_state(remainder.pop('cuda_rng_state'))
+        epoch = remainder.pop('epoch')
+        self.start_epoch = epoch + 1
+
+        self.logger.info(f"------- started from checkpoint at: {path}\n ------- started from epoch:{self.start_epoch}")
+
     @torch.no_grad()
     def compute_item_feature(self, config, data):
         if self.use_text:

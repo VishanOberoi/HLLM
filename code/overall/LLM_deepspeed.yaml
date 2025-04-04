@@ -6,8 +6,8 @@ reproducibility: True
 checkpoint_dir: 'saved'
 show_progress: True
 
-log_wandb: False
-wandb_project: 'REC'
+log_wandb: True
+wandb_project: 'HLLM_PixelRec'
 MAX_ITEM_LIST_LENGTH: 50
 MAX_TEXT_LENGTH: 64
 
