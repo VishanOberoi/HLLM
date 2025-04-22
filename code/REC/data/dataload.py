@@ -95,36 +95,147 @@ class Data:
         self.train_feat = None
         self.feat_name_list = ['inter_feat']  # self.inter_feat
 
-    def build(self):
-        self.logger.info(f"build {self.dataset_name} dataload")
-        self.sort(by='timestamp')
-        user_list = self.inter_feat['user_id'].values
-        item_list = self.inter_feat['item_id'].values
-        timestamp_list = self.inter_feat['timestamp'].values
-        grouped_index = self._grouped_index(user_list)
 
+    def _load_pre_split_data(self):
+        """
+        Load data from pre-split files (train/valid/test) in a way that's compatible with HLLM pipeline
+        """
+        self.logger.info(set_color(f'Loading pre-split data for {self.dataset_name}.', 'green'))
+        
+        # Define file paths for pre-split data
+        train_path = os.path.join(self.dataset_path, 'train_interactions.csv')
+        valid_path = os.path.join(self.dataset_path, 'valid_interactions.csv')
+        test_path = os.path.join(self.dataset_path, 'test_interactions.csv')
+        item_details_path = os.path.join(self.dataset_path, 'item_details.csv')
+        
+        # Load the data to match expected format
+        train_data = pd.read_csv(
+            train_path, delimiter=',', dtype={'item_id': str, 'user_id': str, 'timestamp': int}, 
+            header=0, names=['item_id', 'user_id', 'timestamp']
+        )
+        self.logger.info(f'Train interactions loaded successfully from [{train_path}].')
+        
+        valid_data = pd.read_csv(
+            valid_path, delimiter=',', dtype={'item_id': str, 'user_id': str, 'timestamp': int}, 
+            header=0, names=['item_id', 'user_id', 'timestamp']
+        )
+        self.logger.info(f'Valid interactions loaded successfully from [{valid_path}].')
+        
+        test_data = pd.read_csv(
+            test_path, delimiter=',', dtype={'item_id': str, 'user_id': str, 'timestamp': int}, 
+            header=0, names=['item_id', 'user_id', 'timestamp']
+        )
+        self.logger.info(f'Test interactions loaded successfully from [{test_path}].')
+        
+        # Load item details if needed - use same format as expected in original code
+        if os.path.exists(item_details_path):
+            item_data = pd.read_csv(
+                item_details_path, delimiter=',', dtype={'item_id': str}, header=0
+            )
+            self.item_feat = item_data
+            self.logger.info(f'Item details loaded successfully from [{item_details_path}].')
+        
+        # Combine all interactions for consistent ID mapping
+        all_data = pd.concat([train_data, valid_data, test_data], ignore_index=True)
+        self.inter_feat = all_data
+        
+        # Apply the same ID mapping process as the original code
+        self._data_processing()
+        
+        # Now process the same way as in the regular build method
+        self.logger.info(f"Building dataloader from pre-split files for {self.dataset_name}")
+        
+        # Map the raw IDs to internal IDs for all datasets
+        train_data['user_id'] = train_data['user_id'].map(self.token2id['user_id'])
+        train_data['item_id'] = train_data['item_id'].map(self.token2id['item_id'])
+        valid_data['user_id'] = valid_data['user_id'].map(self.token2id['user_id'])
+        valid_data['item_id'] = valid_data['item_id'].map(self.token2id['item_id'])
+        test_data['user_id'] = test_data['user_id'].map(self.token2id['user_id'])
+        test_data['item_id'] = test_data['item_id'].map(self.token2id['item_id'])
+        
+        # Sort train data by timestamp (as done in the normal build method)
+        train_data.sort_values(by='timestamp', ascending=True, inplace=True)
+        
+        # Build user sequences exactly as in the original build method
+        user_list = train_data['user_id'].values
+        item_list = train_data['item_id'].values
+        timestamp_list = train_data['timestamp'].values
+        grouped_index = self._grouped_index(user_list)
+        
         user_seq = {}
         time_seq = {}
         for uid, index in grouped_index.items():
             user_seq[uid] = item_list[index]
             time_seq[uid] = timestamp_list[index]
-
+        
         self.user_seq = user_seq
         self.time_seq = time_seq
+        
+        # Critical change: In the original build, it excludes the last 2 items
+        # for each user for validation and testing. Here we're using our pre-split data
+        # so we shouldn't exclude anything from the training set
         train_feat = dict()
         indices = []
-
         for index in grouped_index.values():
-            indices.extend(list(index)[:-2])
-        for k in self.inter_feat:
-            train_feat[k] = self.inter_feat[k].values[indices]
-
+            indices.extend(list(index))
+        
+        for k in train_data.columns:
+            train_feat[k] = train_data[k].values[indices]
+        
+        # Apply the same sequence building logic based on model type
         if self.config['MODEL_INPUT_TYPE'] == InputType.AUGSEQ:
             train_feat = self._build_aug_seq(train_feat)
         elif self.config['MODEL_INPUT_TYPE'] == InputType.SEQ:
             train_feat = self._build_seq(train_feat)
-
+        
         self.train_feat = train_feat
+        
+        # Create validation and test data dictionaries in the same format as expected by the model
+        self.valid_data = {}
+        grouped_valid = valid_data.groupby('user_id')
+        for uid, group in grouped_valid:
+            self.valid_data[uid] = group['item_id'].values.tolist()
+        
+        self.test_data = {}
+        grouped_test = test_data.groupby('user_id')
+        for uid, group in grouped_test:
+            self.test_data[uid] = group['item_id'].values.tolist()
+        
+        self.logger.info(f"Pre-split data loading completed. Train sequences: {len(self.user_seq)}, Valid users: {len(self.valid_data)}, Test users: {len(self.test_data)}")
+        
+    def build(self, use_pre_split=False):
+        if use_pre_split:
+            self._load_pre_split_data()
+        else:
+            self.logger.info(f"build {self.dataset_name} dataload")
+            self.sort(by='timestamp')
+            user_list = self.inter_feat['user_id'].values
+            item_list = self.inter_feat['item_id'].values
+            timestamp_list = self.inter_feat['timestamp'].values
+            grouped_index = self._grouped_index(user_list)
+
+            user_seq = {}
+            time_seq = {}
+            for uid, index in grouped_index.items():
+                user_seq[uid] = item_list[index]
+                time_seq[uid] = timestamp_list[index]
+
+            self.user_seq = user_seq
+            self.time_seq = time_seq
+            train_feat = dict()
+            indices = []
+
+            for index in grouped_index.values():
+                indices.extend(list(index)[:-2])
+            for k in self.inter_feat:
+                train_feat[k] = self.inter_feat[k].values[indices]
+
+            if self.config['MODEL_INPUT_TYPE'] == InputType.AUGSEQ:
+                train_feat = self._build_aug_seq(train_feat)
+            elif self.config['MODEL_INPUT_TYPE'] == InputType.SEQ:
+                train_feat = self._build_seq(train_feat)
+
+            self.train_feat = train_feat
 
     def _grouped_index(self, group_by_list):
         index = {}
