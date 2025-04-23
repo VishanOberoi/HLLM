@@ -32,7 +32,7 @@ class Data:
         self.data_split = config['data_split']
         self.item_data = config['item_data']
         self.logger = getLogger()
-        self._from_scratch()
+        # self._from_scratch()
 
     def _from_scratch(self):
         self.logger.info(set_color(f'Loading {self.__class__} from scratch with {self.data_split = }.', 'green'))
@@ -103,10 +103,10 @@ class Data:
         self.logger.info(set_color(f'Loading pre-split data for {self.dataset_name}.', 'green'))
         
         # Define file paths for pre-split data
-        train_path = os.path.join(self.dataset_path, 'train_interactions.csv')
-        valid_path = os.path.join(self.dataset_path, 'valid_interactions.csv')
-        test_path = os.path.join(self.dataset_path, 'test_interactions.csv')
-        item_details_path = os.path.join(self.dataset_path, 'item_details.csv')
+        train_path = os.path.join(self.dataset_path, self.dataset_name, 'train_interactions.csv')
+        valid_path = os.path.join(self.dataset_path, self.dataset_name, 'valid_interactions.csv')
+        test_path = os.path.join(self.dataset_path, self.dataset_name, 'test_interactions.csv')
+        item_details_path = os.path.join(self.dataset_path, self.dataset_name, 'item_details.csv')
         
         # Load the data to match expected format
         train_data = pd.read_csv(
@@ -126,6 +126,9 @@ class Data:
             header=0, names=['item_id', 'user_id', 'timestamp']
         )
         self.logger.info(f'Test interactions loaded successfully from [{test_path}].')
+        print(f' the length of training data is {len(train_data)}')
+        print(f' the length of training data is {len(valid_data)}')
+        print(f' the length of training data is {len(test_data)}')
         
         # Load item details if needed - use same format as expected in original code
         if os.path.exists(item_details_path):
@@ -203,7 +206,7 @@ class Data:
         
         self.logger.info(f"Pre-split data loading completed. Train sequences: {len(self.user_seq)}, Valid users: {len(self.valid_data)}, Test users: {len(self.test_data)}")
         
-    def build(self, use_pre_split=False):
+    def build(self, use_pre_split):
         if use_pre_split:
             self._load_pre_split_data()
         else:
