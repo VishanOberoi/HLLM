@@ -45,18 +45,23 @@ class Data:
             raise ValueError(f'File {inter_feat_path} not exist.')
 
         df = pd.read_csv(
-            inter_feat_path, delimiter=',', dtype={'item_id': str, 'user_id': str, 'timestamp': int}, header=0, names=['item_id', 'user_id', 'timestamp']
-        )
+            inter_feat_path, delimiter=',', dtype={'user_id': str, 'item_id': str, 'timestamp': int}, header=0)
         self.logger.info(f'Interaction feature loaded successfully from [{inter_feat_path}].')
         self.inter_feat = df
 
         if item_data:
             item_data_path = os.path.join(dataset_path, f'{item_data}.csv')
             item_df = pd.read_csv(
-                item_data_path, delimiter=',', dtype={'item_id': str, 'user_id': str, 'timestamp': int}, header=0, names=['item_id', 'user_id', 'timestamp']
+                item_data_path, delimiter=',', dtype={'item_id': str}, header=0
             )
             self.item_feat = item_df
             self.logger.info(f'Item feature loaded successfully from [{item_data}].')
+            
+            if 'item_id' in self.token2id:
+              self.item_feat['item_id'] = self.item_feat['item_id'].map(self.token2id['item_id'])
+            missing = self.item_feat['item_id'].isna().sum()
+            if missing > 0:
+              self.logger.warning(f"{missing} items in item_details.csv could not be mapped to interaction data")
 
     def _data_processing(self):
 
@@ -110,20 +115,17 @@ class Data:
         
         # Load the data to match expected format
         train_data = pd.read_csv(
-            train_path, delimiter=',', dtype={'item_id': str, 'user_id': str, 'timestamp': int}, 
-            header=0, names=['item_id', 'user_id', 'timestamp']
+            train_path, delimiter=',', dtype={'user_id': str, 'item_id': str, 'timestamp': int}
         )
         self.logger.info(f'Train interactions loaded successfully from [{train_path}].')
         
         valid_data = pd.read_csv(
-            valid_path, delimiter=',', dtype={'item_id': str, 'user_id': str, 'timestamp': int}, 
-            header=0, names=['item_id', 'user_id', 'timestamp']
+            valid_path, delimiter=',', dtype={'user_id': str, 'item_id': str, 'timestamp': int}
         )
         self.logger.info(f'Valid interactions loaded successfully from [{valid_path}].')
         
         test_data = pd.read_csv(
-            test_path, delimiter=',', dtype={'item_id': str, 'user_id': str, 'timestamp': int}, 
-            header=0, names=['item_id', 'user_id', 'timestamp']
+            test_path, delimiter=',', dtype={'user_id': str, 'item_id': str, 'timestamp': int}
         )
         self.logger.info(f'Test interactions loaded successfully from [{test_path}].')
         print(f' the length of training data is {len(train_data)}')
