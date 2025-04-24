@@ -1,4 +1,4 @@
-user_id:FeatureType.TOKEN,item_id:FeatureType.TOKEN,timestamp:FeatureType.FLOAT
+user_id,item_id,timestamp
 1,35,978824300.0
 2,131,978300160.0
 3,183,978298500.0

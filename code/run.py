@@ -83,9 +83,9 @@ def run_loop(local_rank, config_file=None, saved=True, extra_args=[]):
     # get model and data
     dataload = load_data(config)
     train_loader, valid_loader, test_loader = bulid_dataloader(config, dataload)
-    print(f"{len(train_loader) = }")
 
     model = get_model(config['model'])(config, dataload)
+    print(config['model'])
     # model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model).to(device)
 
     world_size = torch.distributed.get_world_size()

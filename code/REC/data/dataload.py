@@ -114,19 +114,13 @@ class Data:
         item_details_path = os.path.join(self.dataset_path, self.dataset_name, 'item_details.csv')
         
         # Load the data to match expected format
-        train_data = pd.read_csv(
-            train_path, delimiter=',', dtype={'user_id': str, 'item_id': str, 'timestamp': int}
-        )
+        train_data = pd.read_csv(train_path, delimiter=',')
         self.logger.info(f'Train interactions loaded successfully from [{train_path}].')
         
-        valid_data = pd.read_csv(
-            valid_path, delimiter=',', dtype={'user_id': str, 'item_id': str, 'timestamp': int}
-        )
+        valid_data = pd.read_csv(valid_path, delimiter=',')
         self.logger.info(f'Valid interactions loaded successfully from [{valid_path}].')
         
-        test_data = pd.read_csv(
-            test_path, delimiter=',', dtype={'user_id': str, 'item_id': str, 'timestamp': int}
-        )
+        test_data = pd.read_csv(test_path, delimiter=',')
         self.logger.info(f'Test interactions loaded successfully from [{test_path}].')
         print(f' the length of training data is {len(train_data)}')
         print(f' the length of training data is {len(valid_data)}')
@@ -144,6 +138,7 @@ class Data:
         all_data = pd.concat([train_data, valid_data, test_data], ignore_index=True)
         self.inter_feat = all_data
         
+        print("Columns in inter_feat before mapping:", self.inter_feat.columns)
         # Apply the same ID mapping process as the original code
         self._data_processing()
         
