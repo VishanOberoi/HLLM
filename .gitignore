@@ -3,3 +3,57 @@
 code/log/
 code/log_tensorboard/
 code/saved/
+
+# Virtual Environment
+hllm_clean_venv/
+venv/
+env/
+.env/
+
+# Dataset files (ignore Pixel200K but track ml1m)
+dataset/Pixel200K.csv
+information/Pixel200K.csv
+*.h5
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Checkpoints and logs
+checkpoints/
+logs/
+*.pt
+*.pth
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

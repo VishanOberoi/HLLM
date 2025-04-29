@@ -32,7 +32,8 @@ def load_data(config):
 
 def bulid_dataloader(config, dataload):
     '''
-    split dataset, generate user history sequence, train/valid/test dataset
+    Use pre-split datasets (train_interactions.csv, valid_interactions.csv, test_interactions.csv)
+    while maintaining compatibility with the existing pipeline
     '''
     dataset_dict = {
         'SASRec': ('SEQTrainDataset', 'SeqEvalDataset', 'seq_eval_collate'),
@@ -42,10 +43,15 @@ def bulid_dataloader(config, dataload):
     }
 
     model_name = config['model']
-    dataload.build()
+    
+    # Call the original build but with a flag to use pre-split data
+    dataload.build(use_pre_split=True)
+    print(f"dataloader build finishing")
 
     dataset_module = importlib.import_module('REC.data.dataset')
     train_set_name, test_set_name, collate_fn_name = dataset_dict[model_name]
+    
+    print(train_set_name, test_set_name, collate_fn_name)
 
     if isinstance(train_set_name, tuple):
         train_set_class = getattr(dataset_module, train_set_name[0])
@@ -53,7 +59,6 @@ def bulid_dataloader(config, dataload):
     else:
         train_set_class = getattr(dataset_module, train_set_name)
         train_collate_fn = None
-
     test_set_class = getattr(dataset_module, test_set_name)
     eval_collate_fn = getattr(dataset_module, collate_fn_name)
 

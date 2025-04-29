@@ -22,18 +22,17 @@ if __name__ == '__main__':
 
     args, unknown_args = parser.parse_known_args()
     config_file = args.config_file
-
-    # if len(config_file) == 2:
-    #     run_yaml = f"../TORCHRUN run.py --config_file {config_file[0]} {config_file[1]} {' '.join(unknown_args)}"
-    # elif len(config_file) == 1:
-    #     run_yaml = f"../TORCHRUN run.py --config_file {config_file[0]} {' '.join(unknown_args)}"
-
-    master_port = "12345"
+#    master_port = "12345"
 
     if len(config_file) == 2:
-        run_yaml = f"torchrun --nproc_per_node=1 --master_port={master_port} run.py --config_file {config_file[0]} {config_file[1]} {' '.join(unknown_args)}"
+         run_yaml = f"../TORCHRUN run.py --config_file {config_file[0]} {config_file[1]} {' '.join(unknown_args)}"
     elif len(config_file) == 1:
-        run_yaml = f"torchrun --nproc_per_node=1 --master_port={master_port} run.py --config_file {config_file[0]} {' '.join(unknown_args)}"
+         run_yaml = f"../TORCHRUN run.py --config_file {config_file[0]} {' '.join(unknown_args)}"
 
+    #master_port = "12345"
 
+   # if len(config_file) == 2:
+    #    run_yaml = f"torchrun --nproc_per_node=2 --master_port={master_port} run.py --config_file {config_file[0]} {config_file[1]} {' '.join(unknown_args)}"
+    #elif len(config_file) == 1:
+     #   run_yaml = f"torchrun --nproc_per_node=2 --master_port={master_port} run.py --co
     os.system(run_yaml)

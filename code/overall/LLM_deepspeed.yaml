@@ -10,12 +10,13 @@ log_wandb: True
 wandb_project: 'HLLM_PixelRec'
 MAX_ITEM_LIST_LENGTH: 50
 MAX_TEXT_LENGTH: 64
+# use_pre_split: True
 
 data_path: ../dataset/                       # dataset path
-dataset: Pixel200K                        # dataset name
+dataset:                         # dataset name
 
-text_path: text_path # Use absolute path
-text_keys: ['title', 'tag', 'description']
+text_path: ../information/ml1m.csv  # Use absolute path
+text_keys: ['movie_title', 'genre']
 
 item_prompt: 'Compress the following sentence into embedding: '
 item_emb_token_n: 1
@@ -23,8 +24,8 @@ item_emb_token_n: 1
 loss: nce
 
 # training settings
-epochs: 10
-train_batch_size: 8
+epochs: 1
+train_batch_size: 1
 optim_args: {
   learning_rate: 1e-4,
   weight_decay: 0.01
@@ -35,7 +36,7 @@ scheduler_args: {
 }
 
 # eval settings
-eval_batch_size: 256
+eval_batch_size: 1
 topk: [5,10,50,200]
 metrics: ['Recall', 'NDCG']
 valid_metric: NDCG@200
