@@ -42,8 +42,16 @@ class HLLM(BaseModel):
         self.use_ft_flash_attn = config['use_ft_flash_attn']
         self.logger.info(f"create item llm")
         self.item_llm = self.create_llm(self.item_pretrain_dir, config['item_llm_init'])
+        print(f"\nItem LLM embedding dimensions:")
+        print(f"Vocab size: {self.item_llm.config.vocab_size}")
+        print(f"Hidden size (embedding dimension): {self.item_llm.config.hidden_size}\n")
+        
         self.logger.info(f"create user llm")
         self.user_llm = self.create_llm(self.user_pretrain_dir, config['user_llm_init'])
+        print(f"\nUser LLM embedding dimensions:")
+        print(f"Vocab size: {self.user_llm.config.vocab_size}")
+        print(f"Hidden size (embedding dimension): {self.user_llm.config.hidden_size}\n")
+        
         self.item_emb_token_n = config['item_emb_token_n']
         if self.item_emb_token_n > 1:
             raise NotImplementedError(f"Not support item_emb_token_n {self.item_emb_token_n} > 1")

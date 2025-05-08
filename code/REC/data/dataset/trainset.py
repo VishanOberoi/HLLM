@@ -171,6 +171,9 @@ class TextSEQTrainDataset(Dataset):
         sequence = sequence[-max_length:]
         vq_time = []
         for time in sequence:
+            # Convert timestamp based on configured unit
+            if self.config.get('timestamp_unit') == 'ms':
+                time = time / 1000.0
             dt = datetime.datetime.fromtimestamp(time, pytz.timezone('UTC'))
             vq_time.append([dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second])
         return torch.tensor(vq_time, dtype=torch.long)

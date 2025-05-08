@@ -7,16 +7,17 @@ checkpoint_dir: 'saved'
 show_progress: True
 
 log_wandb: True
-wandb_project: 'HLLM_PixelRec'
+wandb_project: 'HLLM_AmazonBooks'
 MAX_ITEM_LIST_LENGTH: 50
 MAX_TEXT_LENGTH: 64
-# use_pre_split: True
 
-data_path: ../dataset/                       # dataset path
-dataset:                         # dataset name
+data_path: /data/group_data/cx_group/REC/data/HLLM                       # dataset path
+dataset: amzn-books                         # dataset name
+timestamp_unit: ms 
 
-text_path: ../information/ml1m.csv  # Use absolute path
-text_keys: ['movie_title', 'genre']
+text_path: ../information/  # Use absolute path
+# text_keys: ['movie_title', 'genre']
+text_keys: ['title', 'categories', 'average_rating', 'rating_number', 'price']
 
 item_prompt: 'Compress the following sentence into embedding: '
 item_emb_token_n: 1
@@ -37,9 +38,9 @@ scheduler_args: {
 
 # eval settings
 eval_batch_size: 1
-topk: [5,10,50,200]
+topk: [1,10,50,100]
 metrics: ['Recall', 'NDCG']
-valid_metric: NDCG@200
+valid_metric: NDCG@100
 metric_decimal_place: 7
 eval_step: 1 
 stopping_step: 5

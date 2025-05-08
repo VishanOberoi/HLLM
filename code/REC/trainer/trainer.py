@@ -19,6 +19,7 @@ import torch.optim as optim
 import torch.distributed as dist
 from tqdm import tqdm
 import deepspeed
+import json
 
 from REC.data.dataset import BatchTextDataset
 from REC.data.dataset.collate_fn import customize_rmpad_collate
@@ -431,6 +432,37 @@ class Trainer(object):
         torch.cuda.set_rng_state(remainder.pop('cuda_rng_state'))
         epoch = remainder.pop('epoch')
         self.start_epoch = epoch + 1
+
+        # Write checkpoint information to a log file
+        checkpoint_info = {
+            'best_valid_score': self.best_valid_score,
+            'cur_step': self.cur_step,
+            'start_epoch': self.start_epoch,
+            'checkpoint_path': path
+        }
+        
+        # Create a checkpoint info directory if it doesn't exist
+        info_dir = os.path.join(self.checkpoint_dir, 'checkpoint_info')
+        self.logger.info(f"Creating checkpoint info directory at: {info_dir}")
+        
+        try:
+            os.makedirs(info_dir, exist_ok=True)
+            self.logger.info(f"Successfully created directory: {info_dir}")
+        except Exception as e:
+            self.logger.error(f"Failed to create directory {info_dir}: {str(e)}")
+            return
+        
+        # Write to a JSON file
+        info_file = os.path.join(info_dir, f'checkpoint_info_{os.path.basename(path)}.json')
+        self.logger.info(f"Writing checkpoint info to: {info_file}")
+        
+        try:
+            with open(info_file, 'w') as f:
+                json.dump(checkpoint_info, f, indent=4)
+            self.logger.info(f"Successfully wrote checkpoint info to {info_file}")
+        except Exception as e:
+            self.logger.error(f"Failed to write checkpoint info: {str(e)}")
+            return
 
         self.logger.info(f"------- started from checkpoint at: {path}\n ------- started from epoch:{self.start_epoch}")
 

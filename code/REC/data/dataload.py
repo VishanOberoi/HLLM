@@ -27,10 +27,10 @@ from torch_geometric.utils import degree
 class Data:
     def __init__(self, config):
         self.config = config
-        self.dataset_path = config['data_path']
-        self.dataset_name = config['dataset']
+        self.dataset_path = config['data_path'] # /data/group_data/cx_group/REC/data/HLLM 
+        self.dataset_name = config['dataset'] # amzn-books
         self.data_split = config['data_split']
-        self.item_data = config['item_data']
+        self.item_data = config['item_data'] # amzn-books/item_details
         self.logger = getLogger()
         # self._from_scratch()
 
