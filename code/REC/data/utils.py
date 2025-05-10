@@ -77,8 +77,11 @@ def bulid_dataloader(config, dataload):
     )
 
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_data)
-    valid_sampler = NonConsecutiveSequentialDistributedSampler(valid_data)
-    test_sampler = NonConsecutiveSequentialDistributedSampler(test_data)
+    # valid_sampler = NonConsecutiveSequentialDistributedSampler(valid_data)
+    # test_sampler = NonConsecutiveSequentialDistributedSampler(test_data)
+
+    valid_sampler = ConsecutiveSequentialDistributedSampler(valid_data, batch_size=config["eval_batch_size"])
+    test_sampler  = ConsecutiveSequentialDistributedSampler(test_data, batch_size=config["eval_batch_size"])
 
     num_workers = 11
     rank = torch.distributed.get_rank()

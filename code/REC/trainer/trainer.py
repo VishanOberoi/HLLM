@@ -479,6 +479,8 @@ class Trainer(object):
                     items = self.to_device(items)
                     items = self.model(items, mode='compute_item')
                     self.item_feature.append(items)
+                if torch.distributed.is_initialized():
+                    torch.distributed.barrier()
                 if isinstance(items, tuple):
                     self.item_feature = torch.cat([x[0] for x in self.item_feature]), torch.cat([x[1] for x in self.item_feature])
                 else:
@@ -498,6 +500,7 @@ class Trainer(object):
     def evaluate(self, eval_data, load_best_model=True, model_file=None, show_progress=False, init_model=False):
         if not eval_data:
             return
+
         if init_model:
             world_size, local_world_size = int(os.environ['WORLD_SIZE']), int(os.environ['LOCAL_WORLD_SIZE'])
             nnodes = world_size // local_world_size
@@ -548,6 +551,10 @@ class Trainer(object):
                 if show_progress and self.rank == 0:
                     iter_data.set_postfix_str(f"data: {data_time-start_time:.3f} fwd: {fwd_time-data_time:.3f}", refresh=False)
                 self.eval_collector.eval_batch_collect(scores, positive_u, positive_i)
+            
+            if torch.distributed.is_initialized():
+                torch.distributed.barrier()
+
             num_total_examples = len(eval_data.sampler.dataset)
             struct = self.eval_collector.get_data_struct()
             result = self.evaluator.evaluate(struct)

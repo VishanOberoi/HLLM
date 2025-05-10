@@ -44,7 +44,7 @@ python3 main.py \
   --text_path /home/voberoi/HLLM/information \
   --gradient_checkpointing True \
   --stage 3 \
-  --model_file ../checkpoints/ml1m_run/pytorch_model.bin
+  --model_file ../checkpoints/ml1m_run/pytorch_model.bin \
   --val_only True
 
 

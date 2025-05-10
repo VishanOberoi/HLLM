@@ -7,17 +7,18 @@ checkpoint_dir: 'saved'
 show_progress: True
 
 log_wandb: True
-wandb_project: 'HLLM_AmazonBooks'
+wandb_project: 'HLLM_AmazonBeauty'
 MAX_ITEM_LIST_LENGTH: 50
 MAX_TEXT_LENGTH: 64
 
 data_path: /data/group_data/cx_group/REC/data/HLLM                       # dataset path
-dataset: amzn-books                         # dataset name
+dataset: amzn-beauty                         # dataset name
 timestamp_unit: ms 
 
 text_path: ../information/  # Use absolute path
 # text_keys: ['movie_title', 'genre']
 text_keys: ['title', 'categories', 'average_rating', 'rating_number', 'price']
+# text_keys: ['title', 'categories']
 
 item_prompt: 'Compress the following sentence into embedding: '
 item_emb_token_n: 1
@@ -44,6 +45,7 @@ valid_metric: NDCG@100
 metric_decimal_place: 7
 eval_step: 1 
 stopping_step: 5
+skip_last_batch: True
 
 strategy: deepspeed
 precision: bf16-mixed
