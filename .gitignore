@@ -3,6 +3,7 @@
 code/log/
 code/log_tensorboard/
 code/saved/
+code/wandb/
 
 # Virtual Environment
 hllm_clean_venv/
