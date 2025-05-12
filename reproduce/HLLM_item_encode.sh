@@ -34,11 +34,11 @@ info_path="/data/user_data/jingyuah/HLLM_weights/data/information"
 
 epoch=5
 
-num_shards=128 # total number of shards 
+num_shards=64 # total number of shards 
 shard=$1 # the current shard, measuring sequentially 
 item_batch_size=256
 num_cpus=12 # more cpus -> fetch cw topics etc faster
-save_step=50 # towards how many steps do you save a checkpoint 
+save_step=200 # towards how many steps do you save a checkpoint 
 
 echo $shard 
 
