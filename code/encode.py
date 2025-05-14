@@ -221,8 +221,8 @@ def item_encode(model, config, args, output_path, save_step=50):
                     pickle.dump((item_feature, actual_idx), f)
                 print(f"saved checkpoint at: {output_path}.temp at batch {actual_idx}")
                 sys.stdout.flush()
-                # # avoid preemption when saving ckpt...
-                # os.rename(f"{batch_output_path}_1", batch_output_path)
+                # avoid preemption when saving ckpt...
+                os.rename(f"{batch_output_path}_1", batch_output_path)
 
         if isinstance(items, tuple):
             item_feature = torch.cat([x[0] for x in self.item_feature]), torch.cat([x[1] for x in self.item_feature])

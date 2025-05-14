@@ -7,8 +7,8 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=12
 
-#SBATCH --partition=general     
-#SBATCH --mem=128G 
+#SBATCH --partition=preempt     
+#SBATCH --mem=256G 
 #SBATCH --gres=gpu:A6000:1
 
 #SBATCH --time=48:00:00
@@ -40,7 +40,7 @@ item_batch_size=256
 num_cpus=12 # more cpus -> fetch cw topics etc faster
 save_step=200 # towards how many steps do you save a checkpoint 
 
-echo $shard 
+echo "clueweb-b-en.${shard}-of-${num_shards}.pkl"
 
 # Clueweb id map path
 id_map_path="/data/group_data/cx_group/REC/ClueWeb-Reco/ClueWeb-Reco_public/cwid_to_id.tsv"
@@ -55,8 +55,8 @@ export MASTER_PORT=$(expr 10000 + $(echo -n $SLURM_JOBID | tail -c 4))
 
 
 # Item and User LLM are initialized by specific pretrain_dir.
-python3 HLLM/code/encode.py \
-    --config_file HLLM/code/overall/LLM_deepspeed.yaml HLLM/code/HLLM/HLLM.yaml \
+python3 code/encode.py \
+    --config_file code/overall/LLM_deepspeed.yaml code/HLLM/HLLM.yaml \
     --loss nce \
     --epochs $epoch \
     --train_batch_size 8 \
