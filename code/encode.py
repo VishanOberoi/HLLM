@@ -136,6 +136,8 @@ class ClueWebBatchTextDataset(Dataset):
         return outputs
 
 
+    def __skip__(self, num_to_skip): 
+        self.item_list = self.item_list[num_to_skip:]
 
 
 def convert_str(s):
@@ -176,9 +178,7 @@ def item_encode(model, config, args, output_path, save_step=50):
     item_data = ClueWebBatchTextDataset(config, args)
     # item_batch_size = config['MAX_ITEM_LIST_LENGTH'] * config['train_batch_size']
     item_batch_size = args.batch_size
-    item_loader = DataLoader(item_data, batch_size=item_batch_size, num_workers=args.num_workers, shuffle=False, pin_memory=True, collate_fn=customize_rmpad_collate)
-    print(f"Inference item_data with {item_batch_size = } {len(item_loader) = }")
-    
+
     # ckpt file 
     batch_output_path = output_path + ".temp"
 
@@ -192,34 +192,44 @@ def item_encode(model, config, args, output_path, save_step=50):
         item_feature = []
         start_from_idx = -1
 
+    finished_example = (start_from_idx + 1) * item_batch_size
+    # manually skip the ones  
+    item_data.__skip__(finished_example)
+    print(f"number of examples left: {len(item_data)}")
+    item_loader = DataLoader(item_data, batch_size=item_batch_size, num_workers=args.num_workers, shuffle=False, pin_memory=True, collate_fn=customize_rmpad_collate)
+    print(f"Inference item_data with {item_batch_size = } {len(item_loader) = }")
+    
     print(f"Start encoding from batch {start_from_idx+1}")
     model.eval()
     with torch.no_grad():
         for idx, items in tqdm(enumerate(item_loader), total=len(item_loader)):
 
-            # skip the finished batches 
-            if idx <= start_from_idx: 
-                continue 
+            actual_idx = idx + 1 + start_from_idx
+
+            # # skip the finished batches 
+            # if idx <= start_from_idx: 
+            #     continue 
 
             items = to_device(items)
             items = model(items, mode='compute_item')
             item_feature.append(items.cpu().numpy())
 
             # checkpoint resumption 
-            if idx % save_step == 0: 
+            if actual_idx % save_step == 0: 
                 # first save to temp temp location 
                 with open(f"{batch_output_path}_1", 'wb') as f:
-                    pickle.dump((item_feature, idx), f)
-                print(f"saved checkpoint at: {output_path}.temp at batch {idx}")
+                    pickle.dump((item_feature, actual_idx), f)
+                print(f"saved checkpoint at: {output_path}.temp at batch {actual_idx}")
                 sys.stdout.flush()
-                # avoid preemption when saving ckpt...
-                os.rename(f"{batch_output_path}_1", batch_output_path)
+                # # avoid preemption when saving ckpt...
+                # os.rename(f"{batch_output_path}_1", batch_output_path)
 
         if isinstance(items, tuple):
             item_feature = torch.cat([x[0] for x in self.item_feature]), torch.cat([x[1] for x in self.item_feature])
         else:
-            item_feature = torch.cat(item_feature)
-    item_feature = item_feature.numpy()
+            item_feature = np.concatenate(item_feature, 0)
+    
+    print(f"final item features has {item_feature.shape[0]} examples")
     # output embeddings 
     with open(output_path, 'wb') as f:
         pickle.dump(item_feature, f)
