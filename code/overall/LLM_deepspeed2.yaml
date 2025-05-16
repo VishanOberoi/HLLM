@@ -1,3 +1,4 @@
+# Example for HLLM on Amazon Toys
 # general
 seed: 2020
 state: INFO
@@ -7,12 +8,12 @@ checkpoint_dir: 'saved'
 show_progress: True
 
 log_wandb: True
-wandb_project: 'HLLM_AmazonSports'
+wandb_project: 'HLLM_AmazonToys'
 MAX_ITEM_LIST_LENGTH: 50
 MAX_TEXT_LENGTH: 64
 
 data_path: /data/group_data/cx_group/REC/data/HLLM                       # dataset path
-dataset: amzn-sports                         # dataset name
+dataset: amzn-toys                         # dataset name
 timestamp_unit: ms 
 
 text_path: ../information/  # Use absolute path
@@ -36,13 +37,14 @@ scheduler_args: {
 }
 
 # eval settings
-eval_batch_size: 1
+eval_batch_size: 32
 topk: [1,10,50,100]
 metrics: ['Recall', 'NDCG']
 valid_metric: NDCG@100
 metric_decimal_place: 7
 eval_step: 1 
 stopping_step: 5
+skip_last_batch: True
 
 strategy: deepspeed
 precision: bf16-mixed

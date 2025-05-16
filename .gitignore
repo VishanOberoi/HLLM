@@ -11,12 +11,10 @@ venv/
 env/
 .env/
 
-# Dataset files (ignore Pixel200K but track ml1m)
 dataset/Pixel200K.csv
 information/Pixel200K.csv
 *.h5
 
-# Python
 __pycache__/
 *.py[cod]
 *$py.class
@@ -38,7 +36,6 @@ wheels/
 .installed.cfg
 *.egg
 
-# Checkpoints and logs
 checkpoints/
 logs/
 *.pt
@@ -58,3 +55,7 @@ logs/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Ignore all .sh files except those in reproduce folder
+*.sh
+!reproduce/*.sh

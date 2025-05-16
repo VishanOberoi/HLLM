@@ -1,3 +1,4 @@
+# Example for HLLM on Amazon Books
 # general
 seed: 2020
 state: INFO
@@ -7,18 +8,16 @@ checkpoint_dir: 'saved'
 show_progress: True
 
 log_wandb: True
-wandb_project: 'HLLM_AmazonBeauty'
+wandb_project: 'HLLM_AmazonBooks'
 MAX_ITEM_LIST_LENGTH: 50
 MAX_TEXT_LENGTH: 64
 
 data_path: /data/group_data/cx_group/REC/data/HLLM                       # dataset path
-dataset: amzn-beauty                         # dataset name
+dataset: amzn-books                         # dataset name
 timestamp_unit: ms 
 
 text_path: ../information/  # Use absolute path
-# text_keys: ['movie_title', 'genre']
 text_keys: ['title', 'categories', 'average_rating', 'rating_number', 'price']
-# text_keys: ['title', 'categories']
 
 item_prompt: 'Compress the following sentence into embedding: '
 item_emb_token_n: 1
@@ -38,7 +37,7 @@ scheduler_args: {
 }
 
 # eval settings
-eval_batch_size: 1
+eval_batch_size: 24
 topk: [1,10,50,100]
 metrics: ['Recall', 'NDCG']
 valid_metric: NDCG@100
