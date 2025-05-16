@@ -146,34 +146,3 @@ year={2024}
 
 > Thanks to the excellent code repository [RecBole](https://github.com/RUCAIBox/RecBole), [VisRec](https://github.com/ialab-puc/VisualRecSys-Tutorial-IUI2021), [PixelRec](https://github.com/westlake-repl/PixelRec) and [HSTU](https://github.com/facebookresearch/generative-recommenders/tree/main) ! 
 > HLLM is released under the Apache License 2.0, some codes are modified from HSTU and PixelRec, which are released under the Apache License 2.0 and MIT License, respectively.
-
-## HLLM
-We follow the HLLM official repository to perform HLLM experiments. Please see the [HLLM official repository](https://github.com/bytedance/HLLM) for more details.
-
-### Environment Setup
-To avoid package conflicts, create a virtual environment and install dependencies from our requirements.txt:
-```bash
-python -m venv hllm_env
-source hllm_env/bin/activate
-pip install -r requirements.txt
-```
-
-### Experiments
-We provide scripts to reproduce our experiments across all datasets in the `reproduce/` folder. Our scripts are adapted from the HLLM official repository with additional support for checkpointing, loading, multinode training, and adapted to our datasets.
-
-Run experiments on different datasets using:
-```bash
-# Amazon Toys dataset
-sbatch reproduce/amzn_toys_HLLM.sh
-
-# Amazon Books dataset
-sbatch reproduce/amzn_books_HLLM.sh
-
-#Amazon Sports dataset
-sbatch reproduce/amzn_sports_HLLM.sh
-
-# ML-1M dataset
-sbatch reproduce/ml1m_HLLM.sh
-```
-
-Note: Remember to update dataset paths and model directories in these scripts before running.
