@@ -9,15 +9,19 @@ show_progress: True
 
 log_wandb: True
 wandb_project: 'HLLM_AmazonBooks'
+wandb_entity: 'vishan'  
+wandb_resume: False 
+wandb_run_id: null  
 MAX_ITEM_LIST_LENGTH: 50
 MAX_TEXT_LENGTH: 64
 
 data_path: /data/group_data/cx_group/REC/data/HLLM                       # dataset path
-dataset: amzn-books                         # dataset name
-timestamp_unit: ms 
+dataset: ml1m                         # dataset name
+# timestamp_unit: ms 
 
 text_path: ../information/  # Use absolute path
-text_keys: ['title', 'categories', 'average_rating', 'rating_number', 'price']
+# text_keys: ['title', 'categories', 'average_rating', 'rating_number', 'price']
+text_keys: ['movie_title', 'genre']
 
 item_prompt: 'Compress the following sentence into embedding: '
 item_emb_token_n: 1
