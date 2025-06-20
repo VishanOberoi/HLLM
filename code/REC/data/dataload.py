@@ -157,10 +157,11 @@ class Data:
         test_data['user_id'] = test_data['user_id'].map(self.token2id['user_id'])
         test_data['item_id'] = test_data['item_id'].map(self.token2id['item_id'])
         
-        # Sort train data by timestamp (as done in the normal build method)
+        # Sort train data by timestamp
         train_data.sort_values(by='timestamp', ascending=True, inplace=True)
         
-        all_sorted = all_data.sort_values(by=['user_id', 'timestamp'])
+
+        all_sorted = self.inter_feat.sort_values(by=['user_id', 'timestamp'])
         user_list  = all_sorted['user_id'].values
         item_list  = all_sorted['item_id'].values
         timestamp_list = all_sorted['timestamp'].values
